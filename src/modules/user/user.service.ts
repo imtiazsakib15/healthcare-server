@@ -1,6 +1,6 @@
 import { PrismaClient, UserRole } from "../../../generated/prisma";
 import bcrypt from "bcrypt";
-const prisma = new PrismaClient();
+import prisma from "../../utils/prisma";
 
 const createAdmin = async (data: any) => {
   const result = await prisma.$transaction(async (tx) => {
