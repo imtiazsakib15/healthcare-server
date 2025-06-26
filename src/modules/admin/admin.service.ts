@@ -29,6 +29,10 @@ const getAllFromDB = async (
     andConditions.push(filterData);
   }
 
+  andConditions.push({
+    isDeleted: false,
+  });
+
   const result = await prisma.admin.findMany({
     where: {
       AND: andConditions,
@@ -59,6 +63,7 @@ const getByIdFromDB = async (id: string) => {
   return await prisma.admin.findUnique({
     where: {
       id,
+      isDeleted: false,
     },
   });
 };
@@ -67,6 +72,7 @@ const updateIntoDB = async (id: string, data: Partial<Admin>) => {
   await prisma.admin.findUniqueOrThrow({
     where: {
       id,
+      isDeleted: false,
     },
   });
 
@@ -81,6 +87,7 @@ const updateIntoDB = async (id: string, data: Partial<Admin>) => {
 //   await prisma.admin.findUniqueOrThrow({
 //     where: {
 //       id,
+//       isDeleted: false,
 //     },
 //   });
 
@@ -105,6 +112,7 @@ const deleteFromDB = async (id: string) => {
   await prisma.admin.findUniqueOrThrow({
     where: {
       id,
+      isDeleted: false,
     },
   });
 
