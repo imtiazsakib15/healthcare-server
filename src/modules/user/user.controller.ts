@@ -1,21 +1,15 @@
-import { Request, Response } from "express";
 import { UserService } from "./user.service";
+import { catchAsync } from "../../utils/catchAsync";
 
-const createAdmin = async (req: Request, res: Response) => {
-  try {
-    const result = await UserService.createAdmin(req.body);
+const createAdmin = catchAsync(async (req, res) => {
+  const result = await UserService.createAdmin(req.body);
 
-    res.status(200).json({
-      success: true,
-      message: "Admin created successfully",
-      data: result,
-    });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, message: "Internal server error", error });
-  }
-};
+  res.status(200).json({
+    success: true,
+    message: "Admin created successfully",
+    data: result,
+  });
+});
 
 export const UserController = {
   createAdmin,
