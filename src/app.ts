@@ -1,7 +1,7 @@
-import express, { Application, Request, Response } from "express";
+import express, { Application, Request, Response, NextFunction } from "express";
 import cors from "cors";
-import { UserRoutes } from "./modules/user/user.route";
-import { AdminRoutes } from "./modules/admin/admin.route";
+import router from "./routes";
+import { globalErrorHandler } from "./middlewares/globalErrorHandler";
 
 const app: Application = express();
 
@@ -13,7 +13,8 @@ app.get("/", (req: Request, res: Response) => {
   res.send({ message: "Server is running..." });
 });
 
-app.use("/api/v1/users", UserRoutes);
-app.use("/api/v1/admins", AdminRoutes);
+app.use("/api/v1", router);
+
+app.use(globalErrorHandler);
 
 export default app;
