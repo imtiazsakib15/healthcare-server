@@ -23,6 +23,25 @@ const getAllFromDB = async (req: Request, res: Response) => {
   }
 };
 
+const getByIdFromDB = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const result = await AdminService.getByIdFromDB(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Admin retrieved successfully",
+      data: result,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Internal server error", error });
+  }
+};
+
 export const AdminController = {
   getAllFromDB,
+  getByIdFromDB,
 };
