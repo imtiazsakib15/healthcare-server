@@ -1,4 +1,4 @@
-import { Admin, Prisma } from "../../../generated/prisma";
+import { Admin, Prisma, UserStatus } from "../../../generated/prisma";
 import { modifyPaginationAndSortOptions } from "../../utils/modifyOptions";
 import prisma from "../../utils/prisma";
 import { searchableFields } from "./admin.constant";
@@ -77,6 +77,30 @@ const updateIntoDB = async (id: string, data: Partial<Admin>) => {
     data,
   });
 };
+// const deleteFromDB = async (id: string) => {
+//   await prisma.admin.findUniqueOrThrow({
+//     where: {
+//       id,
+//     },
+//   });
+
+//   const result = await prisma.$transaction(async (tx) => {
+//     const deletedAdmin = await tx.admin.delete({
+//       where: {
+//         id,
+//       },
+//     });
+//     await tx.user.delete({
+//       where: {
+//         email: deletedAdmin.email,
+//       },
+//     });
+//     return deletedAdmin;
+//   });
+
+//   return result;
+// };
+
 const deleteFromDB = async (id: string) => {
   await prisma.admin.findUniqueOrThrow({
     where: {
@@ -85,14 +109,20 @@ const deleteFromDB = async (id: string) => {
   });
 
   const result = await prisma.$transaction(async (tx) => {
-    const deletedAdmin = await tx.admin.delete({
+    const deletedAdmin = await tx.admin.update({
       where: {
         id,
       },
+      data: {
+        isDeleted: true,
+      },
     });
-    await tx.user.delete({
+    await tx.user.update({
       where: {
         email: deletedAdmin.email,
+      },
+      data: {
+        status: UserStatus.DELETED,
       },
     });
     return deletedAdmin;
