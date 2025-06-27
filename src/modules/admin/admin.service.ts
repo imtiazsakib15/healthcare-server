@@ -1,15 +1,13 @@
 import { Admin, Prisma, UserStatus } from "../../../generated/prisma";
-import { modifyPaginationAndSortOptions } from "../../utils/modifyOptions";
+import { TOptions } from "../../types";
+import { modifyOptions } from "../../utils/modifyOptions";
 import prisma from "../../utils/prisma";
 import { searchableFields } from "./admin.constant";
+import { TAdminFilterParams } from "./admin.type";
 
-const getAllFromDB = async (
-  params: Record<string, unknown>,
-  options: Record<string, unknown>
-) => {
+const getAllFromDB = async (params: TAdminFilterParams, options: TOptions) => {
   const { searchTerm, ...filterData } = params;
-  const { page, limit, skip, sortBy, sortOrder } =
-    modifyPaginationAndSortOptions(options);
+  const { page, limit, skip, sortBy, sortOrder } = modifyOptions(options);
   const andConditions: Prisma.AdminWhereInput[] = [];
 
   // Handle filtering and searching

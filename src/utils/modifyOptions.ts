@@ -1,16 +1,6 @@
-type TOptions = {
-  page?: number;
-  limit?: number;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-};
-type TOptionsReturn = Required<TOptions> & {
-  skip: number;
-};
+import { TOptions, TOptionsReturn } from "../types";
 
-export const modifyPaginationAndSortOptions = (
-  options: TOptions
-): TOptionsReturn => {
+export const modifyOptions = (options: TOptions): TOptionsReturn => {
   const {
     page = 1,
     limit = 12,
