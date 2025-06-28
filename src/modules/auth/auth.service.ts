@@ -1,8 +1,8 @@
 import prisma from "../../utils/prisma";
 import bcrypt from "bcrypt";
-import { generateToken, TPayload } from "../../helpers/jwtHelper";
+import { generateToken, TPayload, verifyToken } from "../../helpers/jwtHelper";
 import { config } from "../../config";
-import { User } from "../../../generated/prisma";
+import { User, UserStatus } from "../../../generated/prisma";
 
 const login = async (data: Pick<User, "email" | "password">) => {
   const { email, password } = data;
@@ -34,6 +34,28 @@ const login = async (data: Pick<User, "email" | "password">) => {
   };
 };
 
+const refreshToken = async (refreshToken: string) => {
+  if (!refreshToken) throw new Error("Refresh token is required");
+  const decoded = verifyToken(refreshToken, config.REFRESH_TOKEN_SECRET!);
+
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { email: decoded.email, status: UserStatus.ACTIVE },
+  });
+
+  const payload: TPayload = { email: decoded.email, role: decoded.role };
+  const accessToken = generateToken(
+    payload,
+    config.ACCESS_TOKEN_SECRET!,
+    config.ACCESS_TOKEN_EXPIRATION_TIME
+  );
+
+  return {
+    accessToken,
+    needPasswordChange: user.needPasswordChange,
+  };
+};
+
 export const AuthService = {
   login,
+  refreshToken,
 };
