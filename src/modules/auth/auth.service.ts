@@ -41,6 +41,7 @@ const refreshToken = async (refreshToken: string) => {
   const user = await prisma.user.findUniqueOrThrow({
     where: { email: decoded.email, status: UserStatus.ACTIVE },
   });
+  if (user.role !== decoded.role) throw new Error("Forbidden");
 
   const payload: TPayload = { email: decoded.email, role: decoded.role };
   const accessToken = generateToken(

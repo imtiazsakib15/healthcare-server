@@ -9,7 +9,7 @@ export const globalErrorHandler = (
 ): void => {
   const statusCode = err.statusCode || httpStatus.INTERNAL_SERVER_ERROR;
   const message = err.message || "Something went wrong";
-
+  console.log(err.message);
   res.status(statusCode).json({
     success: false,
     message: message,

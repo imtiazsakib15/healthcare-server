@@ -1,5 +1,7 @@
-import jwt, { JwtPayload } from "jsonwebtoken";
+import httpStatus from "http-status";
+import jwt, { JwtPayload, Secret } from "jsonwebtoken";
 import { UserRole } from "../../generated/prisma";
+import AppError from "../errors/AppError";
 
 export type TPayload = {
   email: string;
@@ -13,7 +15,7 @@ export type TVerifiedPayload = {
 };
 export const generateToken = (
   payload: TPayload,
-  secret: string,
+  secret: Secret,
   expiresIn: any
 ) => {
   return jwt.sign(payload, secret, {
@@ -22,10 +24,10 @@ export const generateToken = (
   });
 };
 
-export const verifyToken = (token: string, secret: string) => {
+export const verifyToken = (token: string, secret: Secret) => {
   try {
     return jwt.verify(token, secret) as JwtPayload;
   } catch (error) {
-    throw new Error("Your session has expired. Please log in again.");
+    throw new AppError(httpStatus.UNAUTHORIZED, "Your session has expired.");
   }
 };
