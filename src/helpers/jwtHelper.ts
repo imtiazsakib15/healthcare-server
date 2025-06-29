@@ -7,11 +7,11 @@ export type TPayload = {
   email: string;
   role: UserRole;
 };
-export type TVerifiedPayload = {
+export type TDecodedUser = {
   email: string;
   role: UserRole;
-  iat: Date;
-  exp: Date;
+  iat: number;
+  exp: number;
 };
 export const generateToken = (
   payload: TPayload,
@@ -24,10 +24,10 @@ export const generateToken = (
   });
 };
 
-export const verifyToken = (token: string, secret: Secret) => {
+export const verifyToken = async (token: string, secret: Secret) => {
   try {
     return jwt.verify(token, secret) as JwtPayload;
   } catch (error) {
-    throw new AppError(httpStatus.UNAUTHORIZED, "Your session has expired.");
+    throw new AppError(httpStatus.UNAUTHORIZED, "Your session has expired....");
   }
 };

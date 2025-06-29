@@ -7,7 +7,7 @@ const router = Router();
 
 router.post(
   "/",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  // auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   UserController.createAdmin
 );
 

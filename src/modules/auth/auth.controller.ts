@@ -2,9 +2,7 @@ import httpStatus from "http-status";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { AuthService } from "./auth.service";
-import { access } from "fs";
 import { config } from "../../config";
-import prisma from "../../utils/prisma";
 
 const login = catchAsync(async (req, res) => {
   const result = await AuthService.login(req.body);
@@ -38,7 +36,19 @@ const refreshToken = catchAsync(async (req, res) => {
   });
 });
 
+const changePassword = catchAsync(async (req, res) => {
+  const result = await AuthService.changePassword(req.user!, req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Password changed successfully",
+    data: result,
+  });
+});
+
 export const AuthController = {
   login,
   refreshToken,
+  changePassword,
 };

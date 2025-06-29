@@ -1,8 +1,16 @@
+import httpStatus from "http-status";
 import prisma from "../../utils/prisma";
 import bcrypt from "bcrypt";
-import { generateToken, TPayload, verifyToken } from "../../helpers/jwtHelper";
+import {
+  generateToken,
+  TPayload,
+  TDecodedUser,
+  verifyToken,
+} from "../../helpers/jwtHelper";
 import { config } from "../../config";
 import { User, UserStatus } from "../../../generated/prisma";
+import AppError from "../../errors/AppError";
+import { comparePassword, hashPassword } from "../../helpers/bcryptHelper";
 
 const login = async (data: Pick<User, "email" | "password">) => {
   const { email, password } = data;
@@ -35,13 +43,15 @@ const login = async (data: Pick<User, "email" | "password">) => {
 };
 
 const refreshToken = async (refreshToken: string) => {
-  if (!refreshToken) throw new Error("Refresh token is required");
-  const decoded = verifyToken(refreshToken, config.REFRESH_TOKEN_SECRET!);
+  if (!refreshToken)
+    throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized");
+  const decoded = await verifyToken(refreshToken, config.REFRESH_TOKEN_SECRET!);
 
   const user = await prisma.user.findUniqueOrThrow({
     where: { email: decoded.email, status: UserStatus.ACTIVE },
   });
-  if (user.role !== decoded.role) throw new Error("Forbidden");
+  if (user.role !== decoded.role)
+    throw new AppError(httpStatus.FORBIDDEN, "Forbidden");
 
   const payload: TPayload = { email: decoded.email, role: decoded.role };
   const accessToken = generateToken(
@@ -56,7 +66,36 @@ const refreshToken = async (refreshToken: string) => {
   };
 };
 
+const changePassword = async (
+  user: TDecodedUser,
+  data: { oldPassword: string; newPassword: string }
+) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: { email: user.email, status: "ACTIVE" },
+  });
+  const isPasswordMatched = await comparePassword(
+    data.oldPassword,
+    userData.password
+  );
+  if (!isPasswordMatched)
+    throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized");
+
+  const hashedPassword = await hashPassword(data.newPassword);
+
+  const result = await prisma.user.update({
+    where: {
+      email: user.email,
+    },
+    data: {
+      password: hashedPassword,
+      needPasswordChange: false,
+    },
+  });
+  return { needPasswordChange: result.needPasswordChange };
+};
+
 export const AuthService = {
   login,
   refreshToken,
+  changePassword,
 };
