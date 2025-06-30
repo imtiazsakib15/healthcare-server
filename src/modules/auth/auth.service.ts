@@ -11,6 +11,7 @@ import { config } from "../../config";
 import { User, UserStatus } from "../../../generated/prisma";
 import AppError from "../../errors/AppError";
 import { comparePassword, hashPassword } from "../../helpers/bcryptHelper";
+import { emailSender } from "../../lib/emailSender";
 
 const login = async (data: Pick<User, "email" | "password">) => {
   const { email, password } = data;
@@ -94,8 +95,26 @@ const changePassword = async (
   return { needPasswordChange: result.needPasswordChange };
 };
 
+const forgotPassword = async (email: string) => {
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { email, status: "ACTIVE" },
+  });
+  const payload: TPayload = { email, role: user.role };
+
+  const token = generateToken(
+    payload,
+    config.RESET_PASS_TOKEN_SECRET!,
+    config.RESET_PASS_TOKEN_EXPIRATION_TIME
+  );
+
+  await emailSender(email, token);
+
+  return { token };
+};
+
 export const AuthService = {
   login,
   refreshToken,
   changePassword,
+  forgotPassword,
 };
