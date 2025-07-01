@@ -112,9 +112,53 @@ const forgotPassword = async (email: string) => {
   return { token };
 };
 
+const resetPassword = async (data: {
+  email: string;
+  token: string;
+  password: string;
+}) => {
+  const { email, token, password } = data;
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { email, status: "ACTIVE" },
+  });
+
+  const decoded = await verifyToken(token, config.RESET_PASS_TOKEN_SECRET!);
+  if (decoded.email !== email)
+    throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized");
+
+  const payload: TPayload = { email, role: user.role };
+  const accessToken = generateToken(
+    payload,
+    config.ACCESS_TOKEN_SECRET!,
+    config.ACCESS_TOKEN_EXPIRATION_TIME
+  );
+  const refreshToken = generateToken(
+    payload,
+    config.REFRESH_TOKEN_SECRET!,
+    config.REFRESH_TOKEN_EXPIRATION_TIME
+  );
+
+  const hashedPassword = await hashPassword(password);
+  const result = await prisma.user.update({
+    where: {
+      email,
+    },
+    data: {
+      password: hashedPassword,
+      needPasswordChange: false,
+    },
+  });
+  return {
+    accessToken,
+    refreshToken,
+    needPasswordChange: result.needPasswordChange,
+  };
+};
+
 export const AuthService = {
   login,
   refreshToken,
   changePassword,
   forgotPassword,
+  resetPassword,
 };
