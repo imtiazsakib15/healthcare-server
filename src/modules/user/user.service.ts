@@ -1,19 +1,27 @@
+import { uploadToCloudinary } from "./../../helpers/fileUploader";
+import { Request } from "express";
 import { UserRole } from "../../../generated/prisma";
 import { hashPassword } from "../../helpers/bcryptHelper";
 import prisma from "../../utils/prisma";
 
-const createAdmin = async (data: any) => {
+const createAdmin = async (req: Request) => {
+  const { password, admin } = req.body;
+
+  if (req.file) {
+    const image = await uploadToCloudinary(req.file);
+    admin.profilePhoto = image.secure_url;
+  }
   const result = await prisma.$transaction(async (tx) => {
     const userInfo = {
-      email: data.admin.email,
-      password: await hashPassword(data.password),
+      email: admin.email,
+      password: await hashPassword(password),
       role: UserRole.ADMIN,
     };
     await tx.user.create({
       data: userInfo,
     });
     const createdAdmin = await tx.admin.create({
-      data: data.admin,
+      data: admin,
     });
 
     return createdAdmin;
