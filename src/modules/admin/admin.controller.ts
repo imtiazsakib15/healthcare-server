@@ -7,10 +7,7 @@ import httpStatus from "http-status";
 import { catchAsync } from "../../utils/catchAsync";
 
 const getAllFromDB = catchAsync(async (req, res) => {
-  const filteredParams = pick(req.query, adminFilterableFields);
-  const options = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
-
-  const result = await AdminService.getAllFromDB(filteredParams, options);
+  const result = await AdminService.getAllFromDB(req.query);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

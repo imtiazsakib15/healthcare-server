@@ -6,6 +6,7 @@ import prisma from "../../utils/prisma";
 import { modifyOptions } from "../../utils/modifyOptions";
 import { userSearchableFields, userFilterableFields } from "./user.constant";
 import { pick } from "../../utils/pick";
+import { filterAndPaginate } from "../../utils/filterAndPaginate";
 
 const createAdmin = async (req: Request) => {
   const { password, admin } = req.body;
@@ -59,57 +60,12 @@ const createDoctor = async (req: Request) => {
 };
 
 const getAllFromDB = async (query: Record<string, unknown>) => {
-  const { searchTerm, ...filterData } = pick(query, userFilterableFields);
-  const options = pick(query, ["page", "limit", "sortBy", "sortOrder"]);
-
-  const { page, limit, skip, sortBy, sortOrder } = modifyOptions(options);
-  const andConditions: Prisma.UserWhereInput[] = [];
-
-  // Handle filtering and searching
-  if (searchTerm) {
-    andConditions.push({
-      OR: userSearchableFields.map((field) => {
-        return {
-          [field]: {
-            contains: searchTerm,
-            mode: "insensitive",
-          },
-        };
-      }),
-    });
-  }
-
-  if (Object.keys(filterData).length > 0) {
-    andConditions.push(filterData);
-  }
-
-  const whereConditions: Prisma.UserWhereInput | undefined =
-    andConditions.length > 0
-      ? {
-          AND: andConditions,
-        }
-      : undefined;
-
-  const result = await prisma.user.findMany({
-    where: whereConditions,
-    skip,
-    take: limit,
-    orderBy: {
-      [sortBy as string]: sortOrder,
-    },
-  });
-
-  const total = await prisma.user.count({
-    where: whereConditions,
-  });
-  return {
-    meta: {
-      page,
-      limit,
-      total,
-    },
-    data: result,
-  };
+  return await filterAndPaginate(
+    prisma.user,
+    query,
+    userFilterableFields,
+    userSearchableFields
+  );
 };
 
 export const UserService = { createAdmin, createDoctor, getAllFromDB };
