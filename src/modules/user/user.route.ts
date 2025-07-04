@@ -35,4 +35,10 @@ router.post(
   }
 );
 
+router.get(
+  "/",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  UserController.getAllFromDB
+);
+
 export const UserRoutes = router;

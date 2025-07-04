@@ -2,7 +2,7 @@ import { Admin, Prisma, UserStatus } from "../../../generated/prisma";
 import { TOptions } from "../../types";
 import { modifyOptions } from "../../utils/modifyOptions";
 import prisma from "../../utils/prisma";
-import { searchableFields } from "./admin.constant";
+import { adminSearchableFields } from "./admin.constant";
 import { TAdminFilterParams } from "./admin.type";
 
 const getAllFromDB = async (params: TAdminFilterParams, options: TOptions) => {
@@ -13,7 +13,7 @@ const getAllFromDB = async (params: TAdminFilterParams, options: TOptions) => {
   // Handle filtering and searching
   if (searchTerm) {
     andConditions.push({
-      OR: searchableFields.map((field) => {
+      OR: adminSearchableFields.map((field) => {
         return {
           [field]: {
             contains: searchTerm,
