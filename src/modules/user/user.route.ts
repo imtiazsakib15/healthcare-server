@@ -21,4 +21,18 @@ router.post(
   }
 );
 
+router.post(
+  "/create-doctor",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  upload.single("file"),
+  (req, res, next) => {
+    const data = JSON.parse(req.body.data);
+
+    const parsedData = UserValidationSchema.createDoctor.parse(data);
+    req.body = parsedData;
+
+    UserController.createDoctor(req, res, next);
+  }
+);
+
 export const UserRoutes = router;
