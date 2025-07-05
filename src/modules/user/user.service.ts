@@ -1,6 +1,6 @@
 import { uploadToCloudinary } from "./../../helpers/fileUploader";
 import { Request } from "express";
-import { User, UserRole, UserStatus } from "../../../generated/prisma";
+import { UserRole, UserStatus } from "../../../generated/prisma";
 import { hashPassword } from "../../helpers/bcryptHelper";
 import prisma from "../../utils/prisma";
 import {
@@ -92,13 +92,31 @@ const updateUserStatus = async (id: string, data: { status: UserStatus }) => {
 };
 
 const getMyProfile = async (user: TDecodedUser) => {
-  const result = await prisma.user.findUniqueOrThrow({
+  const userInfo = await prisma.user.findUniqueOrThrow({
     where: {
       email: user.email,
     },
+    include: {
+      admin: true,
+      doctor: true,
+      patient: true,
+    },
   });
 
-  return result;
+  const profileInfo = userInfo.admin
+    ? userInfo.admin
+    : userInfo.doctor
+    ? userInfo.doctor
+    : userInfo.patient
+    ? userInfo.patient
+    : null;
+
+  const { admin, doctor, patient, ...restUserInfo } = userInfo;
+
+  return {
+    ...restUserInfo,
+    ...profileInfo,
+  };
 };
 
 export const UserService = {
