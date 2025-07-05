@@ -1,10 +1,7 @@
-import { Admin, Prisma, UserStatus } from "../../../generated/prisma";
-import { TOptions } from "../../types";
+import { Admin, UserStatus } from "../../../generated/prisma";
 import { filterAndPaginate } from "../../utils/filterAndPaginate";
-import { modifyOptions } from "../../utils/modifyOptions";
 import prisma from "../../utils/prisma";
 import { adminFilterableFields, adminSearchableFields } from "./admin.constant";
-import { TAdminFilterParams } from "./admin.type";
 
 const getAllFromDB = async (query: Record<string, unknown>) => {
   return await filterAndPaginate(
@@ -13,51 +10,6 @@ const getAllFromDB = async (query: Record<string, unknown>) => {
     adminFilterableFields,
     adminSearchableFields
   );
-  // const { searchTerm, ...filterData } = params;
-  // const { page, limit, skip, sortBy, sortOrder } = modifyOptions(options);
-  // const andConditions: Prisma.AdminWhereInput[] = [];
-  // // Handle filtering and searching
-  // if (searchTerm) {
-  //   andConditions.push({
-  //     OR: adminSearchableFields.map((field) => {
-  //       return {
-  //         [field]: {
-  //           contains: searchTerm,
-  //           mode: "insensitive",
-  //         },
-  //       };
-  //     }),
-  //   });
-  // }
-  // if (Object.keys(filterData).length > 0) {
-  //   andConditions.push(filterData);
-  // }
-  // andConditions.push({
-  //   isDeleted: false,
-  // });
-  // const result = await prisma.admin.findMany({
-  //   where: {
-  //     AND: andConditions,
-  //   },
-  //   skip,
-  //   take: limit,
-  //   orderBy: {
-  //     [sortBy as string]: sortOrder,
-  //   },
-  // });
-  // const total = await prisma.admin.count({
-  //   where: {
-  //     AND: andConditions,
-  //   },
-  // });
-  // return {
-  //   meta: {
-  //     page,
-  //     limit,
-  //     total,
-  //   },
-  //   data: result,
-  // };
 };
 
 const getByIdFromDB = async (id: string) => {

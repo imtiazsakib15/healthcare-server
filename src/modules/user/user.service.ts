@@ -4,7 +4,11 @@ import { Prisma, UserRole } from "../../../generated/prisma";
 import { hashPassword } from "../../helpers/bcryptHelper";
 import prisma from "../../utils/prisma";
 import { modifyOptions } from "../../utils/modifyOptions";
-import { userSearchableFields, userFilterableFields } from "./user.constant";
+import {
+  userSearchableFields,
+  userFilterableFields,
+  userSelectedFields,
+} from "./user.constant";
 import { pick } from "../../utils/pick";
 import { filterAndPaginate } from "../../utils/filterAndPaginate";
 
@@ -64,7 +68,8 @@ const getAllFromDB = async (query: Record<string, unknown>) => {
     prisma.user,
     query,
     userFilterableFields,
-    userSearchableFields
+    userSearchableFields,
+    userSelectedFields
   );
 };
 

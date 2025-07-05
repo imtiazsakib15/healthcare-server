@@ -1,3 +1,4 @@
+import { sep } from "path";
 import { Prisma } from "../../generated/prisma";
 import { modifyOptions } from "./modifyOptions";
 import { pick } from "./pick";
@@ -6,7 +7,8 @@ export const filterAndPaginate = async (
   model: { findMany: Function; count: Function },
   query: Record<string, unknown>,
   filterableFields: string[],
-  searchableFields: string[]
+  searchableFields: string[],
+  selectedFields: string[] = []
 ) => {
   const { searchTerm, ...filterData } = pick(query, filterableFields);
   const options = pick(query, ["page", "limit", "sortBy", "sortOrder"]);
@@ -39,6 +41,14 @@ export const filterAndPaginate = async (
         }
       : undefined;
 
+  const selectConditions = selectedFields.reduce<Record<string, boolean>>(
+    (acc, curr) => {
+      acc[curr] = true;
+      return acc;
+    },
+    {}
+  );
+  console.log(selectConditions);
   const result = await model.findMany({
     where: whereConditions,
     skip,
@@ -46,6 +56,10 @@ export const filterAndPaginate = async (
     orderBy: {
       [sortBy as string]: sortOrder,
     },
+    select: selectedFields.length ? selectConditions : undefined,
+    // select: {
+    //   admin: true,
+    // },
   });
 
   const total = await model.count({
