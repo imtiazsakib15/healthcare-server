@@ -48,7 +48,7 @@ export const filterAndPaginate = async (
     },
     {}
   );
-  console.log(selectConditions);
+
   const result = await model.findMany({
     where: whereConditions,
     skip,

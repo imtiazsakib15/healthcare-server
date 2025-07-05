@@ -1,15 +1,13 @@
 import { uploadToCloudinary } from "./../../helpers/fileUploader";
 import { Request } from "express";
-import { Prisma, UserRole } from "../../../generated/prisma";
+import { User, UserRole, UserStatus } from "../../../generated/prisma";
 import { hashPassword } from "../../helpers/bcryptHelper";
 import prisma from "../../utils/prisma";
-import { modifyOptions } from "../../utils/modifyOptions";
 import {
   userSearchableFields,
   userFilterableFields,
   userSelectedFields,
 } from "./user.constant";
-import { pick } from "../../utils/pick";
 import { filterAndPaginate } from "../../utils/filterAndPaginate";
 
 const createAdmin = async (req: Request) => {
@@ -73,4 +71,28 @@ const getAllFromDB = async (query: Record<string, unknown>) => {
   );
 };
 
-export const UserService = { createAdmin, createDoctor, getAllFromDB };
+const updateUserStatus = async (id: string, data: { status: UserStatus }) => {
+  await prisma.user.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  const result = await prisma.user.update({
+    where: { id },
+    data,
+  });
+
+  return {
+    email: result.email,
+    status: result.status,
+    needPasswordChange: result.needPasswordChange,
+  };
+};
+
+export const UserService = {
+  createAdmin,
+  createDoctor,
+  getAllFromDB,
+  updateUserStatus,
+};

@@ -4,6 +4,7 @@ import { auth } from "../../middlewares/auth";
 import { UserRole } from "../../../generated/prisma";
 import { upload } from "../../helpers/fileUploader";
 import { UserValidationSchema } from "./user.validation";
+import { validateRequest } from "../../middlewares/validateRequest";
 
 const router = Router();
 
@@ -39,6 +40,13 @@ router.get(
   "/",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   UserController.getAllFromDB
+);
+
+router.put(
+  "/:id/status",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  validateRequest(UserValidationSchema.updateUserStatus),
+  UserController.updateUserStatus
 );
 
 export const UserRoutes = router;
