@@ -9,6 +9,7 @@ import {
   userSelectedFields,
 } from "./user.constant";
 import { filterAndPaginate } from "../../utils/filterAndPaginate";
+import { TDecodedUser } from "../../types";
 
 const createAdmin = async (req: Request) => {
   const { password, admin } = req.body;
@@ -90,9 +91,20 @@ const updateUserStatus = async (id: string, data: { status: UserStatus }) => {
   };
 };
 
+const getMyProfile = async (user: TDecodedUser) => {
+  const result = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+    },
+  });
+
+  return result;
+};
+
 export const UserService = {
   createAdmin,
   createDoctor,
   getAllFromDB,
   updateUserStatus,
+  getMyProfile,
 };

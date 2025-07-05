@@ -1,18 +1,8 @@
 import httpStatus from "http-status";
 import jwt, { JwtPayload, Secret } from "jsonwebtoken";
-import { UserRole } from "../../generated/prisma";
 import AppError from "../errors/AppError";
+import { TPayload } from "../types";
 
-export type TPayload = {
-  email: string;
-  role: UserRole;
-};
-export type TDecodedUser = {
-  email: string;
-  role: UserRole;
-  iat: number;
-  exp: number;
-};
 export const generateToken = (
   payload: TPayload,
   secret: Secret,
