@@ -55,4 +55,17 @@ router.get(
   UserController.getMyProfile
 );
 
+router.put(
+  "/me",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR, UserRole.PATIENT),
+  upload.single("file"),
+  (req, res, next) => {
+    const data = JSON.parse(req.body.data);
+
+    req.body = data;
+
+    UserController.updateMyProfile(req, res, next);
+  }
+);
+
 export const UserRoutes = router;

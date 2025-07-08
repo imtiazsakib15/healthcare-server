@@ -1,6 +1,12 @@
 import { uploadToCloudinary } from "./../../helpers/fileUploader";
 import { Request } from "express";
-import { UserRole, UserStatus } from "../../../generated/prisma";
+import {
+  Admin,
+  Doctor,
+  Patient,
+  UserRole,
+  UserStatus,
+} from "../../../generated/prisma";
 import { hashPassword } from "../../helpers/bcryptHelper";
 import prisma from "../../utils/prisma";
 import {
@@ -119,10 +125,59 @@ const getMyProfile = async (user: TDecodedUser) => {
   };
 };
 
+const updateMyProfile = async (req: Request) => {
+  const { user, body: payload, file } = req;
+  const userInfo = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user!.email,
+    },
+    include: {
+      admin: true,
+      doctor: true,
+      patient: true,
+    },
+  });
+
+  if (file) {
+    const image = await uploadToCloudinary(file);
+    payload.profilePhoto = image.secure_url;
+  }
+
+  let profileInfo: Admin | Doctor | Patient | null = null;
+
+  if (userInfo.admin) {
+    profileInfo = await prisma.admin.update({
+      where: {
+        email: userInfo.admin.email,
+      },
+      data: payload,
+    });
+  }
+  if (userInfo.doctor) {
+    profileInfo = await prisma.doctor.update({
+      where: {
+        email: userInfo.doctor.email,
+      },
+      data: payload,
+    });
+  }
+  if (userInfo.patient) {
+    profileInfo = await prisma.patient.update({
+      where: {
+        email: userInfo.patient.email,
+      },
+      data: payload,
+    });
+  }
+
+  return profileInfo;
+};
+
 export const UserService = {
   createAdmin,
   createDoctor,
   getAllFromDB,
   updateUserStatus,
   getMyProfile,
+  updateMyProfile,
 };

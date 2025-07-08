@@ -1,10 +1,11 @@
 import httpStatus from "http-status";
 import { NextFunction, Request, Response } from "express";
 import { UserRole } from "../../generated/prisma";
-import { TDecodedUser, verifyToken } from "../helpers/jwtHelper";
+import { verifyToken } from "../helpers/jwtHelper";
 import { config } from "../config";
 import prisma from "../utils/prisma";
 import AppError from "../errors/AppError";
+import { TDecodedUser } from "../types";
 
 export const auth = (...roles: UserRole[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
