@@ -28,6 +28,7 @@ model User {
   doctor  Doctor?
   patient Patient?
 
+  @@index([role])
   @@map("users")
 }
 
@@ -53,7 +54,7 @@ model Doctor {
   profilePhoto        String?
   contactNumber       String
   address             String?
-  registrationNumber  String
+  registrationNumber  String   @unique
   experience          Int      @default(0)
   gender              Gender
   appointmentFee      Int
@@ -64,8 +65,8 @@ model Doctor {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
-  user            User              @relation(fields: [email], references: [email])
-  doctorSpecialty DoctorSpecialty[]
+  user              User              @relation(fields: [email], references: [email])
+  doctorSpecialties DoctorSpecialty[]
 
   @@map("doctors")
 }
@@ -87,21 +88,21 @@ model Patient {
 }
 
 model Specialty {
-  id              String            @id() @default(uuid())
-  title           String
-  icon            String
-  doctorSpecialty DoctorSpecialty[]
+  id                String            @id() @default(uuid())
+  title             String
+  icon              String
+  doctorSpecialties DoctorSpecialty[]
 
   @@map("specialties")
 }
 
 model DoctorSpecialty {
-  doctorId      String
-  specialtiesId String
-  doctor        Doctor    @relation(fields: [doctorId], references: [id])
-  specialty     Specialty @relation(fields: [specialtiesId], references: [id])
+  doctorId    String
+  specialtyId String
+  doctor      Doctor    @relation(fields: [doctorId], references: [id])
+  specialty   Specialty @relation(fields: [specialtyId], references: [id])
 
-  @@unique([doctorId, specialtiesId])
+  @@id([doctorId, specialtyId])
   @@map("doctor_specialties")
 }
 
