@@ -1,17 +1,13 @@
 import httpStatus from "http-status";
 import prisma from "../../utils/prisma";
 import bcrypt from "bcrypt";
-import {
-  generateToken,
-  TPayload,
-  TDecodedUser,
-  verifyToken,
-} from "../../helpers/jwtHelper";
+import { generateToken, verifyToken } from "../../helpers/jwtHelper";
 import { config } from "../../config";
 import { User, UserStatus } from "../../../generated/prisma";
 import AppError from "../../errors/AppError";
 import { comparePassword, hashPassword } from "../../helpers/bcryptHelper";
 import { emailSender } from "../../lib/emailSender";
+import { TDecodedUser, TPayload } from "../../types";
 
 const login = async (data: Pick<User, "email" | "password">) => {
   const { email, password } = data;
