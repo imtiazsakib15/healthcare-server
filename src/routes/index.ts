@@ -3,6 +3,7 @@ import { UserRoutes } from "../modules/user/user.route";
 import { AdminRoutes } from "../modules/admin/admin.route";
 import { AuthRoutes } from "../modules/auth/auth.route";
 import { SpecialtyRoutes } from "../modules/specialty/specialty.route";
+import { DoctorRoutes } from "../modules/doctor/doctor.route";
 
 const router = Router();
 
@@ -19,6 +20,10 @@ const moduleRoutes: TModuleRoute[] = [
   {
     path: "/admin",
     route: AdminRoutes,
+  },
+  {
+    path: "/doctor",
+    route: DoctorRoutes,
   },
   {
     path: "/auth",
